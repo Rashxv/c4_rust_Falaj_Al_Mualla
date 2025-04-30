@@ -1,16 +1,19 @@
 use crate::lexer::Lexer;
 use crate::token::{Token, TokenKind};
+use crate::instruction::Instruction;
 
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     current: Token,
+    pub code: Vec<Instruction>, // NEW
+
 }
 
 impl<'a> Parser<'a> {
     pub fn new(source: &'a str) -> Self {
         let mut lexer = Lexer::new(source);
         let current = lexer.next_token();
-        Self { lexer, current }
+        Self { lexer, current, code: Vec::new() }
     }
 
     fn next_token(&mut self) {
@@ -94,44 +97,54 @@ impl<'a> Parser<'a> {
 
     fn expr_bp(&mut self, min_bp: u8) {
         println!("Parsing expression starting with {:?}", self.current.kind);
-
-        // Parse atomic values first
+    
         match &self.current.kind {
             TokenKind::Num(n) => {
                 println!("Found number: {}", n);
+                self.code.push(Instruction::Imm(*n)); // <-- Emit IMM
                 self.next_token();
             }
             TokenKind::Id(name) => {
                 println!("Found identifier: {}", name);
-                self.next_token();
+                self.next_token(); // (emit later)
             }
             TokenKind::LParen => {
-                self.next_token(); // consume '('
-                self.expr_bp(0);   // parse inner expression
+                self.next_token();
+                self.expr_bp(0);
                 if self.current.kind != TokenKind::RParen {
                     panic!("Expected ')'");
                 }
-                self.next_token(); // consume ')'
+                self.next_token();
             }
             _ => {
                 panic!("Unexpected token in expression: {:?}", self.current.kind);
             }
         }
-
+    
         loop {
             let op_bp = self.get_precedence();
             if op_bp == 0 || op_bp < min_bp {
                 break;
             }
-            
-
+    
             let op = self.current.kind.clone();
             self.next_token();
             println!("Parsing operator: {:?}", op);
-
-            self.expr_bp(op_bp + 1); // parse right-hand side with higher precedence
+    
+            self.expr_bp(op_bp + 1); // Parse right-hand side
+    
+            // Emit corresponding opcode
+            match op {
+                TokenKind::Add => self.code.push(Instruction::Add),
+                TokenKind::Sub => self.code.push(Instruction::Sub),
+                TokenKind::Mul => self.code.push(Instruction::Mul),
+                TokenKind::Div => self.code.push(Instruction::Div),
+                TokenKind::Mod => self.code.push(Instruction::Mod),
+                _ => panic!("Unsupported binary operator {:?}", op),
+            }
         }
     }
+    
 
     // Simple precedence rules based on C4
     fn get_precedence(&self) -> u8 {
