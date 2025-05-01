@@ -4,9 +4,11 @@ use c4_rust::vm::VM;
 fn main() {
     let source = r#"
     {
-        return 1 + 2 * 3 - 4;
+        if (0) return 123;
+        return 456;
     }
     "#;
+    
 
     let mut parser = Parser::new(source);
     parser.parse();

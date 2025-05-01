@@ -5,7 +5,8 @@ use crate::instruction::Instruction;
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
     current: Token,
-    pub code: Vec<Instruction>, // NEW
+    pub code: Vec<Instruction>, 
+    label_id: usize,
 
 }
 
@@ -13,57 +14,93 @@ impl<'a> Parser<'a> {
     pub fn new(source: &'a str) -> Self {
         let mut lexer = Lexer::new(source);
         let current = lexer.next_token();
-        Self { lexer, current, code: Vec::new() }
-    }
+        Self {
+            lexer,
+            current,
+            code: Vec::new(),
+            label_id: 0,
+        }
+            }
 
     fn next_token(&mut self) {
         self.current = self.lexer.next_token();
     }
-
+    
     pub fn parse(&mut self) {
         while self.current.kind != TokenKind::Eof {
             self.stmt();
         }
+        self.code.push(Instruction::Label(9999));
+
     }
 
+    fn new_label(&mut self) -> usize {
+        let id = self.label_id;
+        self.label_id += 1;
+        id
+    }
+    
     fn stmt(&mut self) {
         match &self.current.kind {
             TokenKind::If => {
                 println!("Parsing 'if' statement");
                 self.next_token(); // consume 'if'
-    
+            
                 if self.current.kind != TokenKind::LParen {
                     panic!("Expected '(' after 'if'");
                 }
                 self.next_token(); // consume '('
-    
-                self.expr(); // parse condition
-    
+            
+                self.expr(); // parse condition expression
+            
                 if self.current.kind != TokenKind::RParen {
                     panic!("Expected ')' after 'if' condition");
                 }
                 self.next_token(); // consume ')'
-    
-                self.stmt(); // parse the body of if
+            
+                // ⬇️ Add instruction emission for control flow
+                let false_label = self.new_label();
+                self.code.push(Instruction::Jz(false_label)); // if cond == 0, jump to false_label
+            
+                self.stmt(); // then-body
+            
+                // ⬇️ Patch jump target
+                self.code.push(Instruction::Label(false_label));
             }
+            
             TokenKind::While => {
                 println!("Parsing 'while' loop");
-                self.next_token();
+                self.next_token(); // consume 'while'
+    
                 if self.current.kind != TokenKind::LParen {
                     panic!("Expected '(' after 'while'");
                 }
-                self.next_token();
-                self.expr();
+                self.next_token(); // consume '('
+    
+                let start_label = self.new_label();
+                let end_label = self.new_label();
+    
+                self.code.push(Instruction::Label(start_label)); // loop start
+    
+                self.expr(); // loop condition
+    
                 if self.current.kind != TokenKind::RParen {
                     panic!("Expected ')' after 'while' condition");
                 }
-                self.next_token();
-                self.stmt();
+                self.next_token(); // consume ')'
+    
+                self.code.push(Instruction::Jz(end_label)); // break if false
+    
+                self.stmt(); // loop body
+    
+                self.code.push(Instruction::Jmp(start_label)); // jump back to start
+                self.code.push(Instruction::Label(end_label)); // loop end
             }
             TokenKind::Return => {
                 println!("Parsing 'return' statement");
                 self.next_token();
                 self.expr();
+                self.code.push(Instruction::Jmp(9999)); // fake label for "exit"
                 if self.current.kind == TokenKind::Semicolon {
                     self.next_token();
                 } else {

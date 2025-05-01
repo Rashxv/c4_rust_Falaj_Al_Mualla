@@ -1,10 +1,14 @@
 #[derive(Debug, Clone)]
 pub enum Instruction {
-    Imm(i64),   // Push immediate value
+    Imm(i64),
     Add,
     Sub,
     Mul,
     Div,
     Mod,
-    // You’ll add more later: EQ, JSR, etc.
+
+    // New control flow ops
+    Jmp(usize),      // unconditional jump
+    Jz(usize),       // jump if zero
+    Label(usize),    // pseudo-op for labeling
 }
