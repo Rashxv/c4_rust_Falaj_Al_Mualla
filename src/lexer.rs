@@ -148,6 +148,7 @@ fn skip_whitespace_and_comments(&mut self) {
                     TokenKind::And
                 }
             }
+            
             '|' => {
                 self.bump();
                 if self.peek() == Some('|') {
@@ -157,6 +158,8 @@ fn skip_whitespace_and_comments(&mut self) {
                     TokenKind::Or
                 }
             }
+            '^' => { self.bump(); TokenKind::Xor },
+
             '+' => {
                 self.bump();
                 if self.peek() == Some('+') {
