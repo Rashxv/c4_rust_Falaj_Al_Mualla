@@ -276,3 +276,39 @@ fn test_unary_deref_and_addr_combined() {
     "#;
     assert_eq!(run_and_return(src), 7);
 }
+
+#[test]
+fn test_print_literal() {
+    // this block should emit Print(123) then return 0
+    let src = r#"
+    {
+        print(123);
+        
+        return 0;
+    }
+    "#;
+    assert_eq!(run_and_return(src), 0);
+}
+
+#[test]
+fn test_print_expression_and_return() {
+    // print the sum, then return it + 1
+    let src = r#"
+    {
+        print(2 + 3 * 4);  // prints "14"
+        return 2 + 3 * 4 + 1;
+    }
+    "#;
+    assert_eq!(run_and_return(src), 15);
+}
+
+#[test]
+fn test_print_hello_world() {
+    let src = r#"
+    {
+        print("hello world");
+        return 0;
+    }
+    "#;
+    assert_eq!(run_and_return(src), 0);
+}

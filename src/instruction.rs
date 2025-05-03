@@ -5,7 +5,9 @@ pub enum Instruction {
     Neg, Not, Deref, Addr(usize), Cast,
     Eq, Ne, Lt, Gt, Le, Ge,
     BitAnd, BitOr, BitXor,
-    Shl, Shr,
+    Shl, Shr,Print,
+    PrintStr(String),// prints a Rust string literal
+
     Jmp(usize),
     Jz(usize),
     Label(usize),

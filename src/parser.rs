@@ -102,14 +102,16 @@ impl<'a> Parser<'a> {
 
                         // placeholder Enter, we'll patch after the body
                         self.code.push(Instruction::Enter(0));
-                        let total_slots = self.locals.len();
+
                         // —— parse the function body ——
                         while self.current.kind != TokenKind::RBrace {
                             self.stmt();
                         }
                         self.next_token(); // consume '}'
 
-                        // patch Enter with total param + local slots
+                        // now that all locals (params + any `int x;` inside) are in self.locals:
+                        let total_slots = self.locals.len();
+                        // patch Enter with correct slot count
                         if let Instruction::Enter(ref mut cnt) = self.code[entry] {
                             *cnt = total_slots;
                         }
@@ -381,8 +383,37 @@ impl<'a> Parser<'a> {
                     let var_name = name.clone();
                     self.next_token();
 
-                    if self.current.kind == TokenKind::LParen {
+                    if var_name == "print" {
+                        // must see '('
+                        if self.current.kind != TokenKind::LParen {
+                            panic!("Expected '(' after print");
+                        }
                         self.next_token();
+
+                        // string literal?
+                        if let TokenKind::String(s) = &self.current.kind {
+                            let s_lit = s.clone();
+                            self.next_token(); // consume the literal
+                            if self.current.kind != TokenKind::RParen {
+                                panic!("Expected ')' after print string");
+                            }
+                            self.next_token(); // consume ')'
+                            self.code.push(Instruction::PrintStr(s_lit));
+                        } else {
+                            // otherwise parse an integer expression
+                            self.expr_bp(0);
+                            if self.current.kind != TokenKind::RParen {
+                                panic!("Expected ')' after print expr");
+                            }
+                            self.next_token(); // consume ')'
+                            self.code.push(Instruction::Print);
+                        }
+                        return;
+                    }
+
+                    // ——— everything else is a normal call ———
+                    if self.current.kind == TokenKind::LParen {
+                        self.next_token(); // consume '('
                         let mut args = Vec::new();
                         while self.current.kind != TokenKind::RParen {
                             let start = self.code.len();
@@ -395,9 +426,8 @@ impl<'a> Parser<'a> {
                         }
                         self.next_token(); // consume ')'
 
-
-                        args.reverse();
-                        for arg in args {
+                        // push args right-to-left
+                        for arg in args.into_iter().rev() {
                             self.code.extend(arg);
                         }
 
@@ -513,7 +543,7 @@ impl<'a> Parser<'a> {
     }
 
     /// + You’ll need this helper to place string literals into your data segment
-    fn emit_string_literal(&mut self, s: &str) -> i64 {
+    fn emit_string_literal(&mut self, _s: &str) -> i64 {
         // e.g. push into a Vec<u8>, track its offset, then return that offset
         unimplemented!("string literal emission");
     }

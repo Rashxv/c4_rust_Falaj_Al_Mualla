@@ -33,6 +33,13 @@ impl VM {
         let mut ip = 0;
         while ip < code.len() {
             match &code[ip] {
+                Print => {
+                    let v = self.stack.pop().unwrap();
+                    println!("{}", v);
+                }
+                PrintStr(s) => {
+                    println!("{}", s);
+                }
                 Neg => {
                     // added: unary -
                     let v = self.stack.pop().unwrap();
@@ -258,6 +265,13 @@ impl VM {
         let mut ip = start_ip;
         while ip < code.len() {
             match &code[ip] {
+                Print => {
+                    let v = self.stack.pop().unwrap();
+                    println!("{}", v);
+                }
+                PrintStr(s) => {
+                    println!("{}", s);
+                }
                 Neg => {
                     let v = self.stack.pop().unwrap();
                     self.stack.push(-v);
