@@ -84,7 +84,10 @@ This project adds support for:
 - Print support for `f64`
 - Float-aware bytecode instructions (`PushF`, `PrintF`, etc.)
 
-All handled via the `Value::Flt(f64)` variant in the VM.
+All handled via the `Value::Flt(f64)` variant in the VM. 
+
+Everything regarding the bonus featur is well tested and working in both Lightweight unit tests using Rust's `#[test]` framework and in the Full program behavior tests using `behavior_tests.c`
+
 
 ---
 
