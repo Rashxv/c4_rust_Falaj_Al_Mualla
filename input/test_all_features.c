@@ -112,8 +112,10 @@ int main() {
     print(1.5 + 2.5);
     print(5.0 - 1.25);
     print(2.0 * 4.5);
-    print(9.0 / 2.0);
+    print(9 / 2.0);
 
-
+    // 15c) Mixed int/float
+    print("________Mixed int/float________\n");
+    print( 7 + 0.75 );  // if you support explicit float casts
     return 42;
 }
