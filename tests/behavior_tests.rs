@@ -11,9 +11,13 @@ fn run_and_return(source: &str) -> i64 {
     
     // Simulate a function frame with N local variables
     let num_locals = parser.locals.len();
-    for _ in 0..num_locals {
-        vm.stack.push(0);
+    use c4_rust::vm::Value; // ✅ make sure you import Value
+
+    // Push zeroes for top-level locals (outside functions)
+    for _ in 0..parser.locals.len() {
+        vm.stack.push(Value::Int(0)); // ✅ wrap it in Value::Int
     }
+    
     
     vm.run(&parser.code).expect("VM did not return a value")
     
@@ -83,9 +87,13 @@ fn test_variable_declaration_and_use() {
     
     // FIX: Simulate function frame by pushing local variable space
     let num_locals = parser.locals.len();
-    for _ in 0..num_locals {
-        vm.stack.push(0);
+    use c4_rust::vm::Value; // ✅ make sure you import Value
+
+    // Push zeroes for top-level locals (outside functions)
+    for _ in 0..parser.locals.len() {
+        vm.stack.push(Value::Int(0)); // ✅ wrap it in Value::Int
     }
+    
 
     let result = vm.run(&parser.code);
     assert_eq!(result, Some(14)); // x = 12; return x + 2;
@@ -134,9 +142,13 @@ fn test_function_call() {
     }).collect());
     
     // Simulate locals (main doesn't use any, but parser sets this up)
+    use c4_rust::vm::Value; // ✅ make sure you import Value
+
+    // Push zeroes for top-level locals (outside functions)
     for _ in 0..parser.locals.len() {
-        vm.stack.push(0);
+        vm.stack.push(Value::Int(0)); // ✅ wrap it in Value::Int
     }
+    
 
     let main_ip = parser.main_label.expect("No main() label");
     let result = vm.run_from(&parser.code, main_ip);
@@ -163,10 +175,13 @@ fn test_function_with_arguments() {
         (*addr, arity)
     }).collect());
     
-    // Push locals for main()
+    use c4_rust::vm::Value; // ✅ make sure you import Value
+
+    // Push zeroes for top-level locals (outside functions)
     for _ in 0..parser.locals.len() {
-        vm.stack.push(0);
+        vm.stack.push(Value::Int(0)); // ✅ wrap it in Value::Int
     }
+    
 
     let main_ip = parser.main_label.expect("No main label found");
     let result = vm.run_from(&parser.code, main_ip);
@@ -311,4 +326,43 @@ fn test_print_hello_world() {
     }
     "#;
     assert_eq!(run_and_return(src), 0);
+}
+
+
+#[test]
+fn test_floating_point_literals_and_printing() {
+    let source = r#"
+        int main() {
+            print(3.14);
+            print(2.718);
+            return 0;
+        }
+    "#;
+
+    let mut parser = c4_rust::parser::Parser::new(source);
+    parser.parse();
+
+    let main_ip = parser.main_label.expect("No main function");
+
+    let mut vm = c4_rust::vm::VM::new(
+        parser
+            .functions
+            .iter()
+            .map(|(name, addr)| {
+                let arity = *parser.function_arity.get(name).unwrap_or(&0);
+                (*addr, arity)
+            })
+            .collect(),
+    );
+
+    use c4_rust::vm::Value; // ✅ make sure you import Value
+
+// Push zeroes for top-level locals (outside functions)
+for _ in 0..parser.locals.len() {
+    vm.stack.push(Value::Int(0)); // ✅ wrap it in Value::Int
+}
+
+
+    let result = vm.run_from(&parser.code, main_ip);
+    assert_eq!(result, Some(0));
 }

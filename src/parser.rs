@@ -303,6 +303,7 @@ impl<'a> Parser<'a> {
                 | TokenKind::String(_)
                 | TokenKind::CharLiteral(_)
                 | TokenKind::Num(_)
+                | TokenKind::Float(_) 
                 | TokenKind::Id(_)
                 | TokenKind::LParen
         );
@@ -311,6 +312,16 @@ impl<'a> Parser<'a> {
 
             println!("Parsing expression starting with {:?}", self.current.kind);
             match &self.current.kind {
+                TokenKind::Float(f) => {
+                    let v = *f;
+                    self.next_token();
+                    self.code.push(Instruction::ImmF(v));
+                }
+                TokenKind::Num(n) => {
+                    let v = *n;
+                    self.next_token();
+                    self.code.push(Instruction::Imm(v));
+                }
                 TokenKind::Sub => {
                     self.next_token();
                     self.expr_bp(11);
@@ -406,7 +417,13 @@ impl<'a> Parser<'a> {
                                 panic!("Expected ')' after print expr");
                             }
                             self.next_token(); // consume ')'
-                            self.code.push(Instruction::Print);
+
+                            // Check if last emitted instruction was a float
+                            if let Some(Instruction::PushF(_)) = self.code.last() {
+                                self.code.push(Instruction::PrintF);
+                            } else {
+                                self.code.push(Instruction::Print);
+                            }
                         }
                         return;
                     }
@@ -542,7 +559,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// + You’ll need this helper to place string literals into your data segment
+    ///  need this helper to place string literals into your data segment
     fn emit_string_literal(&mut self, _s: &str) -> i64 {
         // e.g. push into a Vec<u8>, track its offset, then return that offset
         unimplemented!("string literal emission");

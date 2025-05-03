@@ -100,5 +100,20 @@ int main() {
         i = i + 1;
     }
 
+    // 15) Floating-point support
+    print("________Simple float literals________\n");
+    // 15a) Simple float literals
+    print(3.14);
+    print(0.0);
+    print(2.71828);
+
+    // 15b) Float arithmetic
+    print("________Float arithmetic________\n");
+    print(1.5 + 2.5);
+    print(5.0 - 1.25);
+    print(2.0 * 4.5);
+    print(9.0 / 2.0);
+
+
     return 42;
 }

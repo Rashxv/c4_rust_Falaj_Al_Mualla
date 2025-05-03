@@ -14,6 +14,7 @@ pub enum TokenKind {
     Char,
     Sizeof,
     Enum,
+    Float(f64), 
 
     // Operators and punctuation
     Assign,  // =

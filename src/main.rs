@@ -29,10 +29,13 @@ fn main() {
         (*addr, arity)
     }).collect());
 
+    use c4_rust::vm::Value; 
+
     // Push zeroes for top-level locals (outside functions)
     for _ in 0..parser.locals.len() {
-        vm.stack.push(0);
+        vm.stack.push(Value::Int(0)); //  wrap it in Value::Int
     }
+    
 
     // Execute
     let result = vm.run_from(&parser.code, main_ip)

@@ -7,7 +7,9 @@ pub enum Instruction {
     BitAnd, BitOr, BitXor,
     Shl, Shr,Print,
     PrintStr(String),// prints a Rust string literal
-
+    PushF(f64),
+    PrintF,
+    ImmF(f64),
     Jmp(usize),
     Jz(usize),
     Label(usize),
