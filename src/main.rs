@@ -1,8 +1,17 @@
-// src/main.rs
+//! This is the entry point for the C4 Rust compiler executable.
+//!
+//! It handles the following steps:
+//! 1. Reads the source code from a `.c` file provided as a command-line argument.
+//! 2. Uses the parser to convert the source code into bytecode instructions.
+//! 3. Initializes and runs the virtual machine (VM) starting from the `main` function label.
+//! 4. Prints the final return value of the executed program.
+//!
+//! This file ties together the compiler pipeline and serves as the user-facing interface.
 use std::env;
 use std::fs;
 use c4_rust::parser::Parser;
 use c4_rust::vm::VM;
+
 
 fn main() {
     // Allow passing the file as a CLI argument

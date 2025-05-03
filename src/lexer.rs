@@ -1,4 +1,10 @@
-// src/lexer.rs
+/// The `Lexer` struct is responsible for converting raw source code into a stream of tokens
+/// for further processing by the parser. It implements lexical analysis by reading characters
+/// from the input string and recognizing token patterns such as identifiers, literals, keywords,
+/// and operators. The lexer also handles skipping whitespace and single-line comments, supports
+/// escape sequences in string and character literals, and distinguishes between integer and
+/// floating-point number formats. It maintains the current line number to aid error reporting
+/// and produces `Token` instances that are later consumed by the parser during compilation.
 use crate::token::{Token, TokenKind};
 
 pub struct Lexer<'a> {

@@ -1,3 +1,9 @@
+/// This file contains integration tests that validate the behavior of the C4 Rust compiler and virtual machine.
+/// Each test feeds a small C-like code snippet through the parser and VM, asserting the correct execution output.
+/// The tests cover a wide range of language features including arithmetic, control flow, function calls, pointer operations,
+/// comparisons, bitwise and shift operations, floating-point support, and printing.
+/// These tests ensure the correctness and completeness of the C4 compiler backend.
+
 use c4_rust::parser::Parser;
 use c4_rust::vm::VM;
 

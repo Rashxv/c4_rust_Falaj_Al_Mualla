@@ -1,4 +1,8 @@
-/// Enum representing different kinds of tokens.
+/// The `Token` and `TokenKind` enums define the lexical units recognized by the lexer during tokenization
+/// of the C-like source code. Each token consists of a kind (such as identifiers, keywords, literals, or symbols)
+/// and its corresponding span within the input text. `TokenKind` enumerates all the valid categories of tokens,
+/// including control keywords, operators, punctuation, literals, and type names. These tokens form the input
+/// stream consumed by the parser to construct the program’s abstract syntax and semantics.
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
     // Literals

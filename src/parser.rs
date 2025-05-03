@@ -1,3 +1,11 @@
+/// The `Parser` struct is responsible for translating C-like source code into a linear sequence
+/// of virtual machine instructions. It performs recursive descent parsing over tokens provided
+/// by the lexer and constructs the internal representation of functions, expressions, and statements.
+/// This parser supports function definitions, control flow constructs, expressions with operator precedence,
+/// and type handling including basic float and integer operations. It also manages label generation,
+/// local variable tracking, and the mapping of function names to their instruction addresses.
+
+
 use crate::instruction::Instruction;
 use crate::lexer::Lexer;
 use crate::token::{Token, TokenKind};
